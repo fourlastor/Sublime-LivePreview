@@ -1,0 +1,459 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"webb",
+				"webbrowser"
+			],
+			[
+				"try",
+				"try	Try/Except/Else"
+			],
+			[
+				"margin",
+				"margin-left"
+			],
+			[
+				"hpm",
+				"hpMax"
+			],
+			[
+				"bad",
+				"badge-success"
+			],
+			[
+				"ngcl",
+				"ng-click	angular click"
+			],
+			[
+				"ng-re",
+				"ng-repeat	angular repeat"
+			],
+			[
+				"hp",
+				"hpMax"
+			],
+			[
+				"text",
+				"text-align"
+			],
+			[
+				"wid",
+				"width"
+			],
+			[
+				"inlin",
+				"inline-block"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "Prewiew.py",
+			"settings":
+			{
+				"buffer_size": 479,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 54.0,
+		"selected_items":
+		[
+			[
+				"git init",
+				"Git: Init"
+			],
+			[
+				"git push",
+				"Git: Push"
+			],
+			[
+				"quic",
+				"Git: Quick Commit"
+			],
+			[
+				"git 	qui",
+				"Git: Quick Commit"
+			],
+			[
+				"push",
+				"Git: Push"
+			],
+			[
+				"statu",
+				"Git: Status"
+			],
+			[
+				"git pus",
+				"Git: Push"
+			],
+			[
+				"git commi",
+				"Git: Commit"
+			],
+			[
+				"git add",
+				"Git: Add..."
+			],
+			[
+				"git sts",
+				"Git: Status"
+			],
+			[
+				"git qui",
+				"Git: Quick Commit"
+			],
+			[
+				"git stst",
+				"Git: Status"
+			],
+			[
+				"git stat",
+				"Git: Status"
+			],
+			[
+				"quick",
+				"Git: Quick Commit"
+			],
+			[
+				"git statu",
+				"Git: Status"
+			],
+			[
+				"add",
+				"Git: Add..."
+			],
+			[
+				"commit",
+				"Git: Commit"
+			],
+			[
+				"git status",
+				"Git: Status"
+			],
+			[
+				"remo",
+				"Package Control: Remove Package"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"disco",
+				"Package Control: Discover Packages"
+			],
+			[
+				"list",
+				"Package Control: List Packages"
+			],
+			[
+				"package",
+				"Package Control: List Packages"
+			],
+			[
+				"repo",
+				"Package Control: Add Repository"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"inst",
+				"Package Control: Install Package"
+			],
+			[
+				"discover",
+				"Package Control: Discover Packages"
+			],
+			[
+				"remove",
+				"Package Control: Remove Package"
+			],
+			[
+				"twig",
+				"Set Syntax: HTML (Twig)"
+			],
+			[
+				"pakc",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 449.0
+	},
+	"console":
+	{
+		"height": 139.0,
+		"history":
+		[
+			"view.run_command('preview')",
+			"view.run_command('example')",
+			"view.run_command('preview')",
+			"sublime.log_input(True)",
+			"sublime.log_input(False)",
+			"sublime.log_input(True)",
+			"True",
+			"1",
+			"true",
+			"sublime.log_input",
+			"sublime.log_input(true)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/home/daniele/.config/sublime-text-3/Packages/PreviewBrowser/Lol.py",
+		"/home/daniele/.config/sublime-text-3/Packages/PreviewBrowser/Prewiew.py",
+		"/home/daniele/www/dnd-app/app/partials/dmscreen.html",
+		"/home/daniele/www/dnd-app/app/partials/initiative.html",
+		"/home/daniele/www/dnd-app/app/js/controllers.js",
+		"/home/daniele/www/dnd-app/app/partials/rollsHistory.html",
+		"/home/daniele/www/dnd-app/README.md",
+		"/home/daniele/www/dnd-app/app/js/app.js",
+		"/home/daniele/www/dnd-app/app/partials/dices.html",
+		"/home/daniele/www/dnd-app/app/css/app.css",
+		"/home/daniele/www/dnd-app/app/js/directives.js",
+		"/home/daniele/www/dnd-app/app/index-async.html",
+		"/home/daniele/www/dnd-app/app/index.html",
+		"/home/daniele/www/dnd-app/app/js/filters.js",
+		"/home/daniele/www/dnd-app/app/js/services.js",
+		"/home/daniele/www/dnd-app/test/lib/angular/angular-mocks.js",
+		"/home/daniele/www/dnd-app/test/unit/controllersSpec.js",
+		"/home/daniele/www/dnd-app/test/unit/directivesSpec.js",
+		"/home/daniele/www/dnd-app/test/unit/filtersSpec.js",
+		"/home/daniele/www/dnd-app/test/unit/servicesSpec.js",
+		"/home/daniele/www/initiative-app/app/partials/initiative.html",
+		"/home/daniele/www/initiative-app/app/css/app.css",
+		"/home/daniele/www/initiative-app/app/js/controllers.js",
+		"/home/daniele/www/initiative-app/app/js/app.js",
+		"/home/daniele/www/initiative-app/app/index.html",
+		"/home/daniele/www/initiative-app/app/js/services.js",
+		"/home/daniele/www/initiative-app/app/js/filters.js",
+		"/home/daniele/www/initiative-app/app/js/directives.js",
+		"/home/daniele/www/initiative-app/test/lib/angular/angular-mocks.js",
+		"/home/daniele/www/initiative-app/test/unit/servicesSpec.js",
+		"/home/daniele/www/initiative-app/test/unit/controllersSpec.js",
+		"/home/daniele/www/initiative-app/test/unit/directivesSpec.js",
+		"/home/daniele/www/initiative-app/test/unit/filtersSpec.js",
+		"/home/daniele/www/initiative-app/app/index-async.html",
+		"/home/daniele/www/penguin-wares/web/css/app.css",
+		"/home/daniele/www/penguin-wares/views/contatti.html.twig",
+		"/home/daniele/www/penguin-wares/views/home.html.twig",
+		"/home/daniele/TestPlugin/test.py",
+		"/home/daniele/.config/sublime-text-3/Packages/User/Preferences.sublime-settings",
+		"/home/daniele/.config/sublime-text-3/Packages/Default/Default (Linux).sublime-keymap",
+		"/home/daniele/www/penguin-wares/web/js/app.js",
+		"/home/daniele/.config/sublime-text-3/Packages/Default/Preferences.sublime-settings",
+		"/home/daniele/www/penguin-wares/views/template-inner.html.twig",
+		"/home/daniele/www/penguin-wares/views/preventivo.html.twig",
+		"/home/daniele/www/penguin-wares/views/template.html.twig",
+		"/home/daniele/www/penguin-wares/views/servizi.html.twig",
+		"/home/daniele/www/penguin-wares/web/css/sticky_footer.css",
+		"/home/daniele/angular-phonecat/app/index.html",
+		"/home/daniele/angular-phonecat/test/unit/controllersSpec.js"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 93.0,
+		"where_history":
+		[
+			"/home/daniele/www/dnd-app",
+			"/home/daniele/www/initiative-app"
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"h5",
+			"DEX",
+			"sub",
+			"20",
+			"underscore",
+			"hpOp",
+			"span4",
+			"large",
+			"btn",
+			"href",
+			"div",
+			"initiative",
+			"name",
+			"class",
+			"initiativeApp",
+			"bootstrap",
+			"myApp",
+			"5px",
+			"block",
+			"div",
+			"toggle",
+			"2x",
+			"div",
+			"span",
+			"4",
+			"number",
+			"'",
+			"text-example text-example-{{ i }}",
+			"300",
+			"span5",
+			"span8",
+			"span2",
+			"span8",
+			"span4",
+			"h2",
+			"4em",
+			"60px"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"dndApp",
+			"initiativeApp",
+			"\""
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "Prewiew.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 479,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								273,
+								273
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 25.0
+	},
+	"input":
+	{
+		"height": 33.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.git":
+	{
+		"height": 112.0
+	},
+	"project": "live_preview.sublime-project",
+	"replace":
+	{
+		"height": 64.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 253.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+		"max_columns": 1
+	}
+}
