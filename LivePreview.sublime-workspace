@@ -63,7 +63,7 @@
 	"build_system": "",
 	"command_palette":
 	{
-		"height": 54.0,
+		"height": 392.0,
 		"selected_items":
 		[
 			[
@@ -218,8 +218,8 @@
 	},
 	"file_history":
 	[
-		"/home/daniele/.config/sublime-text-3/Packages/PreviewBrowser/Lol.py",
 		"/home/daniele/.config/sublime-text-3/Packages/PreviewBrowser/Prewiew.py",
+		"/home/daniele/.config/sublime-text-3/Packages/PreviewBrowser/Lol.py",
 		"/home/daniele/www/dnd-app/app/partials/dmscreen.html",
 		"/home/daniele/www/dnd-app/app/partials/initiative.html",
 		"/home/daniele/www/dnd-app/app/js/controllers.js",
@@ -359,8 +359,8 @@
 						"selection":
 						[
 							[
-								273,
-								273
+								340,
+								340
 							]
 						],
 						"settings":
@@ -413,7 +413,7 @@
 	{
 		"height": 112.0
 	},
-	"project": "live_preview.sublime-project",
+	"project": "LivePreview.sublime-project",
 	"replace":
 	{
 		"height": 64.0
@@ -432,6 +432,10 @@
 		"height": 500.0,
 		"selected_items":
 		[
+			[
+				"",
+				"~/.config/sublime-text-3/Packages/LivePreview/live_preview.sublime-workspace"
+			]
 		],
 		"width": 380.0
 	},
