@@ -65,7 +65,7 @@ class PreviewCommand(sublime_plugin.TextCommand):
         if None != fname and None != chrome:
             chrome.open("http://{host}:{port}{path}".format(host=self.HOST, port=self.PORT, path=fname))
         else:
-            print("No broweser found")
+            print("No browser found")
 
     def killServer(self):
         if isinstance(self.httpd, http.server.HTTPServer):
