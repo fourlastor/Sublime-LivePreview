@@ -4,6 +4,10 @@
 		{
 			"follow_symlinks": true,
 			"path": "/home/daniele/.config/sublime-text-3/Packages/LivePreview"
+		},
+		{
+			"follow_symlinks": true,
+			"path": "/home/daniele/www/netbeans-chrome-connector"
 		}
 	]
 }
