@@ -1,15 +1,109 @@
 import sublime, sublime_plugin
 import webbrowser
 import http.server
+import threading
+import os
 
-class PreviewHandler(http.server.BaseHTTPRequestHandler):
+def get_folders():
+    '''Get Open Directories in Sublime'''
+    dic = {}
+    # retrieve all Sublime windows
+    windows = sublime.windows()
+    for w in windows:
+        # and retrieve all unique directory path
+        fs = w.folders()
+        for f in fs:
+            key = f.split(os.path.sep)[-1]
+            if key in dic:
+                if dic[key] is f:
+                    continue
+                else:
+                    loop = True
+                    num = 0
+                    while(loop):
+                        num += 1
+                        k = key + " " + str(num)
+                        if k in dic:
+                            if dic[k] is f:
+                                loop = False
+                                break
+                        else:
+                            dic[k] = f
+                            loop = False
+                            break
+            else:
+                dic[key] = f
+    return dic
+
+def path_to_url(filename):
+    folders = get_folders()
+    for folder in folders:
+        if filename.startswith(folders[folder]):
+            return folder + filename[len(folders[folder]):]
+
+def url_to_path(url):
+    folders = get_folders()
+    words = list(filter(None, url.split(os.sep)))
+    if(words[0] in folders):
+        path = folders[words[0]]
+        for word in words[1:]:
+            path = os.path.join(path, word)
+        return path
+    else:
+        return None
+
+def get_web_thread():
+    threads = threading.enumerate()
+    for thread in threads:
+        if thread.name is LivePreviewWebThread.__name__ and thread.is_alive():
+            return thread
+    return None
+
+class LivePreviewEvents(sublime_plugin.EventListener):
+    """Handles events"""
+    httpd = None
+    @classmethod
+    def setHttpd(cls, httpd):
+        cls.httpd = httpd
+
+class LivePreviewStartCommand(sublime_plugin.TextCommand):
+    """Launches the browser for the current file"""
+    def run(self, edit):
+        web_thread = get_web_thread()
+        if web_thread is None:
+            sublime.run_command('live_preview_start_server')
+        host, port = "localhost", 9090
+        url = path_to_url(self.view.file_name())
+        livePreviewBrowserThread = LivePreviewBrowserThread(host, port, url)
+        livePreviewBrowserThread.start()
+        
+class LivePreviewStartServerCommand(sublime_plugin.ApplicationCommand):
+    """Starts the web server and the web socket server"""
+    def run(self):
+        host, port = "localhost", 9090
+        httpd = http.server.HTTPServer((host, port), LivePreviewHTTPRequestHandler)
+        livePreviewWebThread = LivePreviewWebThread(httpd)
+        livePreviewWebThread.start()
+
+class LivePreviewStopServerCommand(sublime_plugin.ApplicationCommand):
+    """Stops the web server and the web socket server"""
+    def run(self):
+        web_thread = get_web_thread()
+        if web_thread is not None:
+            web_thread.stop()
+            web_thread.join()
+
+class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
+    """Manages http requests"""
     def do_HEAD(self):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
     def do_GET(self):
         try:
-            f = open(self.path)
+            path = url_to_path(self.path)
+            print(path)
+            f = open(path)
             self.do_HEAD()
             self.wfile.write(f.read().encode())
             f.close()
@@ -20,57 +114,39 @@ class PreviewHandler(http.server.BaseHTTPRequestHandler):
     def log_error(self,format,*args): pass
     def log_message(self,format,*args): pass
 
+class LivePreviewWebThread(threading.Thread):
+    """Manages a thread which runs the web server"""
+    def __init__(self, httpd):
+        super(LivePreviewWebThread, self).__init__()
+        self.httpd = httpd
+        self.name = self.__class__.__name__
 
-class PreviewCommand(sublime_plugin.TextCommand):
-    HOST, PORT = "localhost", 9090
-    httpd = None
+    def run(self):
+        self.httpd.serve_forever()
 
-    def run(self, edit, action='start'):
+    def stop(self):
+        if isinstance(self.httpd, http.server.HTTPServer):
+            self.httpd.shutdown()
+            self.httpd.server_close()
 
-        if action == 'kill':
-            print("Killing server...")
-            self.killServer()
-            return
-
-        sublime.set_timeout(self.spawnServer, 0)
-        sublime.set_timeout(self.startBrowser, 0)
-            
-
-    def spawnServer(self):
-        """Spawns a new server instance if needed."""
-        if not isinstance(self.httpd, http.server.HTTPServer):
-            self.view.set_status('PreviewStatus', "Previewing on http://{host}:{port}".format(host=self.HOST, port=self.PORT))
-            self.httpd = http.server.HTTPServer((self.HOST, self.PORT), PreviewHandler)
-            print("Would spawn a new server")
-            sublime.set_timeout_async(self.startServer)
-        else:
-            print("Would reuse the server")
-
-    def startServer(self):
+class LivePreviewBrowserThread(threading.Thread):
+    """Manages the browser"""
+    def __init__(self, host, port, url):
+        super(LivePreviewBrowserThread, self).__init__()
+        self.host = host
+        self.port = port
+        self.url = url
+        self.chrome = None
         try:
-            self.httpd.serve_forever()
-        except Exception:
-            pass
-
-    def startBrowser(self):
-        chrome = None
-        try:
-            chrome = webbrowser.get('chrome')
+            self.chrome = webbrowser.get('chrome')
         except webbrowser.Error:
             try:
-                chrome = webbrowser.get('google-chrome')
+                self.chrome = webbrowser.get('google-chrome')
             except webbrowser.Error:
                 pass
-        fname = self.view.file_name()
-        if None != fname and None != chrome:
-            chrome.open("http://{host}:{port}{path}".format(host=self.HOST, port=self.PORT, path=fname))
+    def run(self):
+        if None != self.chrome:
+            self.chrome.open("http://{host}:{port}/{url}".format(host=self.host, port=self.port, url=self.url))
         else:
-            print("No browser found")
-
-    def killServer(self):
-        if isinstance(self.httpd, http.server.HTTPServer):
-            self.httpd.server_close()
-            del self.httpd
-            self.view.erase_status('PreviewStatus')
-        else:
-            print("Not an instance of HTTPServer")
+            sublime.error_message('You must have chrome/chromium installed for this plugin to work.')
+        
