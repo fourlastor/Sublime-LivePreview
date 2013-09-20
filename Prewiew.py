@@ -5,7 +5,7 @@ import threading
 import os
 
 def get_folders():
-    '''Get Open Directories in Sublime'''
+    """Get Open Directories in Sublime"""
     dic = {}
     # retrieve all Sublime windows
     windows = sublime.windows()
@@ -102,7 +102,6 @@ class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         try:
             path = url_to_path(self.path)
-            print(path)
             f = open(path)
             self.do_HEAD()
             self.wfile.write(f.read().encode())
