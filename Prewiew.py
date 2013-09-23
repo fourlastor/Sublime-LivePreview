@@ -35,11 +35,11 @@ def get_folders():
                 dic[key] = f
     return dic
 
-def path_to_url(filename):
+def path_to_url(file_name):
     folders = get_folders()
     for folder in folders:
-        if filename.startswith(folders[folder]):
-            return folder + filename[len(folders[folder]):]
+        if file_name.startswith(folders[folder]):
+            return folder + file_name[len(folders[folder]):]
 
 def url_to_path(url):
     folders = get_folders()
@@ -92,6 +92,7 @@ class LivePreviewStopServerCommand(sublime_plugin.ApplicationCommand):
         if web_thread is not None:
             web_thread.stop()
             web_thread.join()
+            print('stopped server')
 
 class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
     """Manages http requests"""
@@ -100,9 +101,12 @@ class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         self.send_header("Content-type", "text/html")
         self.end_headers()
     def do_GET(self):
+        file_name = url_to_path(self.path)
+        if file_name is None:
+            self.send_error(404, "File not found: {path}".format(path=self.path))
         try:
-            path = url_to_path(self.path)
-            f = open(path)
+            self.observe_file(file_name)
+            f = open(file_name)
             self.do_HEAD()
             self.wfile.write(f.read().encode())
             f.close()
@@ -112,6 +116,13 @@ class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
     def log_request(self,code='-',size='-'): pass
     def log_error(self,format,*args): pass
     def log_message(self,format,*args): pass
+    def observe_file(self, file_name):
+        file_name = file_name.__str__()
+        window = sublime.active_window()
+        view = window.find_open_file(file_name)
+        if view is None:
+            window.open_file(file_name)
+        # should send the file_name to the event listener
 
 class LivePreviewWebThread(threading.Thread):
     """Manages a thread which runs the web server"""
@@ -121,6 +132,7 @@ class LivePreviewWebThread(threading.Thread):
         self.name = self.__class__.__name__
 
     def run(self):
+        print('starting server...')
         self.httpd.serve_forever()
 
     def stop(self):
