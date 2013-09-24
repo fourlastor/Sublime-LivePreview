@@ -18,18 +18,15 @@ def get_folders():
                 if dic[key] is f:
                     continue
                 else:
-                    loop = True
                     num = 0
-                    while(loop):
+                    while(True):
                         num += 1
-                        k = key + " " + str(num)
+                        k = "{key} {num}".format(key=key,num=num)
                         if k in dic:
                             if dic[k] is f:
-                                loop = False
                                 break
                         else:
                             dic[k] = f
-                            loop = False
                             break
             else:
                 dic[key] = f
@@ -102,6 +99,7 @@ class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
     def do_GET(self):
         file_name = url_to_path(self.path)
+        print(file_name)
         if file_name is None:
             self.send_error(404, "File not found: {path}".format(path=self.path))
         try:
