@@ -138,12 +138,17 @@ class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler, LivePrev
         if file_name not in LivePreviewEvents.files:
             LivePreviewEvents.files.append(file_name)
 
-class LivePreviewWebThread(threading.Thread, LivePreviewAPI):
+class LivePreviewNamedThread(threading.Thread, LivePreviewAPI):
+    """Starts a server with a given name"""
+    def __init__(self):
+        super(LivePreviewNamedThread, self).__init__()
+        self.name = self.__class__.name
+
+class LivePreviewWebThread(LivePreviewNamedThread):
     """Manages a thread which runs the web server"""
     def __init__(self, httpd):
         super(LivePreviewWebThread, self).__init__()
         self.httpd = httpd
-        self.name = self.__class__.__name__
 
     def run(self):
         print('starting server...')
@@ -154,7 +159,7 @@ class LivePreviewWebThread(threading.Thread, LivePreviewAPI):
             self.httpd.shutdown()
             self.httpd.server_close()
 
-class LivePreviewBrowserThread(threading.Thread, LivePreviewAPI):
+class LivePreviewBrowserThread(LivePreviewNamedThread):
     """Manages the browser"""
     def __init__(self, host, port, url):
         super(LivePreviewBrowserThread, self).__init__()
@@ -193,11 +198,11 @@ class LivePreviewWebSocket(WebSocketServer, LivePreviewAPI):
             if self.client in outs:
                 pass
 
-class LivePreviewWebSocketThread(threading.Thread, LivePreviewAPI):
+class LivePreviewWSServerThread(LivePreviewNamedThread):
     """Manages the web socket"""
-    def __init__(self, web_socket):
+    def __init__(self, ws_server):
         super(LivePreviewWebSocketThread, self).__init__()
-        self.web_socket = web_socket
+        self.ws_server = ws_server
         
     def run(self):
-        pass
+        self.ws_server.start_server()
