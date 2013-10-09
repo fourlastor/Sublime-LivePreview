@@ -113,6 +113,7 @@ class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler, LivePrev
         print("{path} is {file_name}".format(path=self.path, file_name=file_name))
         if file_name is None:
             self.send_error(404, "File not found: {path}".format(path=self.path))
+            return
         try:
             self.observe_file(file_name)
             f = open(file_name)
