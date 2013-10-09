@@ -8,6 +8,10 @@
 		{
 			"follow_symlinks": true,
 			"path": "/home/daniele/www/netbeans-chrome-connector"
+		},
+		{
+			"follow_symlinks": true,
+			"path": "/home/daniele/progetti/live-preview/extensions/live-preview-chrome"
 		}
 	]
 }
