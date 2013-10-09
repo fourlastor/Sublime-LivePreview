@@ -6,64 +6,60 @@ import os
 import select
 from .websocket import WebSocketServer
 
-def get_folders():
-    """Get Open Directories in Sublime"""
-    dic = {}
-    # retrieve all Sublime windows
-    windows = sublime.windows()
-    for w in windows:
-        # and retrieve all unique directory path
-        fs = w.folders()
-        for f in fs:
-            key = f.split(os.path.sep)[-1]
-            if key in dic:
-                if dic[key] is f:
-                    continue
-                else:
-                    num = 0
-                    while(True):
-                        num += 1
-                        k = "{key} {num}".format(key=key,num=num)
-                        if k in dic:
-                            if dic[k] is f:
-                                break
-                        else:
-                            dic[k] = f
-                            break
-            else:
-                dic[key] = f
-    return dic
-
-def path_to_url(file_name):
-    folders = get_folders()
-    for folder in folders:
-        if file_name.startswith(folders[folder]):
-            return folder + file_name[len(folders[folder]):]
-
-def url_to_path(url):
-    folders = get_folders()
-    words = list(filter(None, url.split(os.sep)))
-    if(words[0] in folders):
-        path = folders[words[0]]
-        for word in words[1:]:
-            path = os.path.join(path, word)
-        return path
-    else:
-        return None
-
-def get_web_thread():
-    threads = threading.enumerate()
-    for thread in threads:
-        if thread.name is LivePreviewWebThread.__name__ and thread.is_alive():
-            return thread
-    return None
-
 class LivePreviewAPI(object):
-    """Manages settings"""
-    def get(self):
+    """Manages settings and shared API"""
+    def get_setting(self):
         pass
-    def set(self):
+    def set_setting(self):
         pass
+
+    @classmethod
+    def get_folders(cls):
+        """Get Open Directories in Sublime"""
+        dic = {}
+        # retrieve all Sublime windows
+        windows = sublime.windows()
+        for w in windows:
+            # and retrieve all unique directory path
+            fs = w.folders()
+            for f in fs:
+                key = f.split(os.path.sep)[-1]
+                if key in dic:
+                    if dic[key] is f:
+                        continue
+                    else:
+                        num = 0
+                        while(True):
+                            num += 1
+                            k = "{key} {num}".format(key=key,num=num)
+                            if k in dic:
+                                if dic[k] is f:
+                                    break
+                            else:
+                                dic[k] = f
+                                break
+                else:
+                    dic[key] = f
+        return dic
+
+    @classmethod
+    def path_to_url(cls, file_name):
+        folders = cls.get_folders()
+        for folder in folders:
+            if file_name.startswith(folders[folder]):
+                return folder + file_name[len(folders[folder]):]
+
+    @classmethod
+    def url_to_path(cls, url):
+        folders = cls.get_folders()
+        words = list(filter(None, url.split(os.sep)))
+        if(words[0] in folders):
+            path = folders[words[0]]
+            for word in words[1:]:
+                path = os.path.join(path, word)
+            return path
+        else:
+            return None
         
 
 class LivePreviewEvents(sublime_plugin.EventListener, LivePreviewAPI):
@@ -81,26 +77,26 @@ class LivePreviewEvents(sublime_plugin.EventListener, LivePreviewAPI):
 class LivePreviewStartCommand(sublime_plugin.TextCommand, LivePreviewAPI):
     """Launches the browser for the current file"""
     def run(self, edit):
-        web_thread = get_web_thread()
-        if web_thread is None:
-            sublime.run_command('live_preview_start_server')
+        sublime.run_command('live_preview_start_server')
         host, port = "localhost", 9090
-        url = path_to_url(self.view.file_name())
+        url = self.path_to_url(self.view.file_name())
         livePreviewBrowserThread = LivePreviewBrowserThread(host, port, url)
         livePreviewBrowserThread.start()
         
 class LivePreviewStartServerCommand(sublime_plugin.ApplicationCommand, LivePreviewAPI):
     """Starts the web server and the web socket server"""
     def run(self):
-        host, port = "localhost", 9090
-        httpd = http.server.HTTPServer((host, port), LivePreviewHTTPRequestHandler)
-        livePreviewWebThread = LivePreviewWebThread(httpd)
-        livePreviewWebThread.start()
+        web_thread = LivePreviewWebThread.get_thread()
+        if web_thread is None:
+            host, port = "localhost", 9090
+            httpd = http.server.HTTPServer((host, port), LivePreviewHTTPRequestHandler)
+            livePreviewWebThread = LivePreviewWebThread(httpd)
+            livePreviewWebThread.start()
 
 class LivePreviewStopServerCommand(sublime_plugin.ApplicationCommand, LivePreviewAPI):
     """Stops the web server and the web socket server"""
     def run(self):
-        web_thread = get_web_thread()
+        web_thread = LivePreviewWebThread.get_thread()
         if web_thread is not None:
             web_thread.stop()
             web_thread.join()
@@ -113,8 +109,8 @@ class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler, LivePrev
         self.send_header("Content-type", "text/html")
         self.end_headers()
     def do_GET(self):
-        file_name = url_to_path(self.path)
-        print(file_name)
+        file_name = self.url_to_path(self.path)
+        print("{path} is {file_name}".format(path=self.path, file_name=file_name))
         if file_name is None:
             self.send_error(404, "File not found: {path}".format(path=self.path))
         try:
@@ -140,9 +136,18 @@ class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler, LivePrev
 
 class LivePreviewNamedThread(threading.Thread, LivePreviewAPI):
     """Starts a server with a given name"""
+
     def __init__(self):
         super(LivePreviewNamedThread, self).__init__()
-        self.name = self.__class__.name
+        self.name = self.__class__.__name__
+
+    @classmethod
+    def get_thread(cls):
+        threads = threading.enumerate()
+        for thread in threads:
+            if thread.name is cls.__name__ and thread.is_alive():
+                return thread
+        return None
 
 class LivePreviewWebThread(LivePreviewNamedThread):
     """Manages a thread which runs the web server"""
