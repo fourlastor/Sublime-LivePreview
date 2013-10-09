@@ -58,7 +58,15 @@ def get_web_thread():
             return thread
     return None
 
-class LivePreviewEvents(sublime_plugin.EventListener):
+class LivePreviewAPI(object):
+    """Manages settings"""
+    def get(self):
+        pass
+    def set(self):
+        pass
+        
+
+class LivePreviewEvents(sublime_plugin.EventListener, LivePreviewAPI):
     """Handles events"""
     files = []
     def on_post_save_async(self, view):
@@ -70,7 +78,7 @@ class LivePreviewEvents(sublime_plugin.EventListener):
         else:
             print("would not have reloaded")
 
-class LivePreviewStartCommand(sublime_plugin.TextCommand):
+class LivePreviewStartCommand(sublime_plugin.TextCommand, LivePreviewAPI):
     """Launches the browser for the current file"""
     def run(self, edit):
         web_thread = get_web_thread()
@@ -81,7 +89,7 @@ class LivePreviewStartCommand(sublime_plugin.TextCommand):
         livePreviewBrowserThread = LivePreviewBrowserThread(host, port, url)
         livePreviewBrowserThread.start()
         
-class LivePreviewStartServerCommand(sublime_plugin.ApplicationCommand):
+class LivePreviewStartServerCommand(sublime_plugin.ApplicationCommand, LivePreviewAPI):
     """Starts the web server and the web socket server"""
     def run(self):
         host, port = "localhost", 9090
@@ -89,7 +97,7 @@ class LivePreviewStartServerCommand(sublime_plugin.ApplicationCommand):
         livePreviewWebThread = LivePreviewWebThread(httpd)
         livePreviewWebThread.start()
 
-class LivePreviewStopServerCommand(sublime_plugin.ApplicationCommand):
+class LivePreviewStopServerCommand(sublime_plugin.ApplicationCommand, LivePreviewAPI):
     """Stops the web server and the web socket server"""
     def run(self):
         web_thread = get_web_thread()
@@ -98,7 +106,7 @@ class LivePreviewStopServerCommand(sublime_plugin.ApplicationCommand):
             web_thread.join()
             print('stopped server')
 
-class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
+class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler, LivePreviewAPI):
     """Manages http requests"""
     def do_HEAD(self):
         self.send_response(200)
@@ -130,7 +138,7 @@ class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         if file_name not in LivePreviewEvents.files:
             LivePreviewEvents.files.append(file_name)
 
-class LivePreviewWebThread(threading.Thread):
+class LivePreviewWebThread(threading.Thread, LivePreviewAPI):
     """Manages a thread which runs the web server"""
     def __init__(self, httpd):
         super(LivePreviewWebThread, self).__init__()
@@ -146,7 +154,7 @@ class LivePreviewWebThread(threading.Thread):
             self.httpd.shutdown()
             self.httpd.server_close()
 
-class LivePreviewBrowserThread(threading.Thread):
+class LivePreviewBrowserThread(threading.Thread, LivePreviewAPI):
     """Manages the browser"""
     def __init__(self, host, port, url):
         super(LivePreviewBrowserThread, self).__init__()
@@ -167,7 +175,7 @@ class LivePreviewBrowserThread(threading.Thread):
         else:
             sublime.error_message('You must have chrome/chromium installed for this plugin to work.')
         
-class LivePreviewWebSocket(WebSocketServer):
+class LivePreviewWebSocket(WebSocketServer, LivePreviewAPI):
     """Web socket to communicate with the browser plugin"""
     def new_client(self):
         rlist = [self.client]
@@ -185,7 +193,7 @@ class LivePreviewWebSocket(WebSocketServer):
             if self.client in outs:
                 pass
 
-class LivePreviewWebSocketThread(threading.Thread):
+class LivePreviewWebSocketThread(threading.Thread, LivePreviewAPI):
     """Manages the web socket"""
     def __init__(self, web_socket):
         super(LivePreviewWebSocketThread, self).__init__()
