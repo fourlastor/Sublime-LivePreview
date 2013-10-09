@@ -3,6 +3,8 @@ import webbrowser
 import http.server
 import threading
 import os
+import select
+from .websocket import WebSocketServer
 
 def get_folders():
     """Get Open Directories in Sublime"""
@@ -58,10 +60,15 @@ def get_web_thread():
 
 class LivePreviewEvents(sublime_plugin.EventListener):
     """Handles events"""
-    httpd = None
-    @classmethod
-    def setHttpd(cls, httpd):
-        cls.httpd = httpd
+    files = []
+    def on_post_save_async(self, view):
+        file_name = view.file_name()
+        if file_name in self.__class__.files:
+            print("would have reloaded")
+            # empy list to regenerate dependencies
+            self.__class__.files = []
+        else:
+            print("would not have reloaded")
 
 class LivePreviewStartCommand(sublime_plugin.TextCommand):
     """Launches the browser for the current file"""
@@ -120,7 +127,8 @@ class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         view = window.find_open_file(file_name)
         if view is None:
             window.open_file(file_name)
-        # should send the file_name to the event listener
+        if file_name not in LivePreviewEvents.files:
+            LivePreviewEvents.files.append(file_name)
 
 class LivePreviewWebThread(threading.Thread):
     """Manages a thread which runs the web server"""
@@ -159,3 +167,29 @@ class LivePreviewBrowserThread(threading.Thread):
         else:
             sublime.error_message('You must have chrome/chromium installed for this plugin to work.')
         
+class LivePreviewWebSocket(WebSocketServer):
+    """Web socket to communicate with the browser plugin"""
+    def new_client(self):
+        rlist = [self.client]
+        while True:
+            wlist = []
+            # if there is something to send, add self.client to the wlist
+            ins, outs, excepts = select.select(rlist, wlist, [], 1)
+
+            if excepts:
+                raise Exception("Socket Exception")
+
+            if self.client in ins:
+                pass
+
+            if self.client in outs:
+                pass
+
+class LivePreviewWebSocketThread(threading.Thread):
+    """Manages the web socket"""
+    def __init__(self, web_socket):
+        super(LivePreviewWebSocketThread, self).__init__()
+        self.web_socket = web_socket
+        
+    def run(self):
+        pass
