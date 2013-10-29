@@ -18,8 +18,8 @@ A simple usage for handling websocket clients:
 
 .. code-block:: python
 
-    from ws4py.client import WebSocketBaseClient
-    from ws4py.manager import WebSocketManager
+    from .client import WebSocketBaseClient
+    from .manager import WebSocketManager
 
     m = WebSocketManager()
 
@@ -46,8 +46,8 @@ import select
 import threading
 import time
 
-from ws4py import format_addresses
-from ws4py.compat import py3k
+from . import format_addresses
+from .compat import py3k
 
 logger = logging.getLogger('ws4py')
 

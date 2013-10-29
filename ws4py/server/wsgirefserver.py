@@ -12,9 +12,9 @@ workflow.
 .. code-block:: python
 
     from wsgiref.simple_server import make_server
-    from ws4py.websocket import EchoWebSocket
-    from ws4py.server.wsgirefserver import WSGIServer, WebSocketWSGIRequestHandler
-    from ws4py.server.wsgiutils import WebSocketWSGIApplication
+    from ..websocket import EchoWebSocket
+    from ..server.wsgirefserver import WSGIServer, WebSocketWSGIRequestHandler
+    from ..server.wsgiutils import WebSocketWSGIApplication
 
     server = make_server('', 9000, server_class=WSGIServer,
                          handler_class=WebSocketWSGIRequestHandler,
@@ -33,10 +33,10 @@ from wsgiref import util
 
 util._hoppish = {}.__contains__
 
-from ws4py.manager import WebSocketManager
-from ws4py import format_addresses
-from ws4py.server.wsgiutils import WebSocketWSGIApplication
-from ws4py.compat import get_connection
+from ..manager import WebSocketManager
+from .. import format_addresses
+from ..server.wsgiutils import WebSocketWSGIApplication
+from ..compat import get_connection
 
 __all__ = ['WebSocketWSGIHandler', 'WebSocketWSGIRequestHandler',
            'WSGIServer']
@@ -131,11 +131,11 @@ class WSGIServer(_WSGIServer):
         _WSGIServer.server_close(self)
 
 if __name__ == '__main__':
-    from ws4py import configure_logger
+    from .. import configure_logger
     configure_logger()
 
     from wsgiref.simple_server import make_server
-    from ws4py.websocket import EchoWebSocket
+    from ..websocket import EchoWebSocket
 
     server = make_server('', 9000, server_class=WSGIServer,
                          handler_class=WebSocketWSGIRequestHandler,

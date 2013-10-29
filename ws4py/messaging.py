@@ -2,9 +2,9 @@
 import os
 import struct
 
-from ws4py.framing import Frame, OPCODE_CONTINUATION, OPCODE_TEXT, \
+from .framing import Frame, OPCODE_CONTINUATION, OPCODE_TEXT, \
      OPCODE_BINARY, OPCODE_CLOSE, OPCODE_PING, OPCODE_PONG
-from ws4py.compat import unicode, py3k
+from .compat import unicode, py3k
 
 __all__ = ['Message', 'TextMessage', 'BinaryMessage', 'CloseControlMessage',
            'PingControlMessage', 'PongControlMessage']

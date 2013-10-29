@@ -7,13 +7,10 @@ import os
 from wsgiref.simple_server import make_server
 
 # works
-from .ws4py import *
 # doesn't work
 from .ws4py.websocket import EchoWebSocket
-# from .ws4py.server.wsgirefserver import WSGIServer, WebSocketWSGIRequestHandler
-# from .ws4py.server.wsgiutils import WebSocketWSGIApplication
-
-
+from .ws4py.server.wsgirefserver import WSGIServer, WebSocketWSGIRequestHandler
+from .ws4py.server.wsgiutils import WebSocketWSGIApplication
 
 class LivePreviewAPI(object):
     """Manages settings and shared API"""
@@ -198,16 +195,20 @@ class LivePreviewWebThread(LivePreviewNamedThread):
 
 class LivePreviewWSServerThread(LivePreviewNamedThread):
     """Manages the web socket"""
-    def __init__(self, ws_server):
+    def __init__(self):
         super(LivePreviewWSServerThread, self).__init__()
-        self.ws_server = ws_server
-        server = make_server('', 9000, server_class=WSGIServer,
+        self.ws_server = make_server('', 9091, server_class=WSGIServer,
                      handler_class=WebSocketWSGIRequestHandler,
                      app=WebSocketWSGIApplication(handler_cls=EchoWebSocket))
-        server.initialize_websockets_manager()
+        self.ws_server.initialize_websockets_manager()
         
     def run(self):
-        server.serve_forever()
+        self.ws_server.serve_forever()
+
+    def stop(self):
+        if isinstance(self.ws_server, http.server.HTTPServer):
+            self.ws_server.shutdown()
+            self.ws_server.server_close()
 
 class LivePreviewStartServerCommand(sublime_plugin.ApplicationCommand, LivePreviewAPI):
     """Starts the web server and the web socket server"""
@@ -220,9 +221,7 @@ class LivePreviewStartServerCommand(sublime_plugin.ApplicationCommand, LivePrevi
             livePreviewWebThread.start()
         ws_thread = LivePreviewWSServerThread.get_thread()
         if ws_thread is None:
-            opts = {'listen_host': 'localhost', 'listen_port': '9091'}
-            wssd = LivePreviewWSServer(listen_host='localhost', listen_port='9091', daemon=True)
-            livePreviewWSServerThread = LivePreviewWSServerThread(wssd)
+            livePreviewWSServerThread = LivePreviewWSServerThread()
             livePreviewWSServerThread.start()
 
 class LivePreviewStopServerCommand(sublime_plugin.ApplicationCommand, LivePreviewAPI):
