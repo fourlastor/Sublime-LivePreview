@@ -35,7 +35,7 @@ util._hoppish = {}.__contains__
 
 from ..manager import WebSocketManager
 from .. import format_addresses
-from ..server.wsgiutils import WebSocketWSGIApplication
+from .wsgiutils import WebSocketWSGIApplication
 from ..compat import get_connection
 
 __all__ = ['WebSocketWSGIHandler', 'WebSocketWSGIRequestHandler',
