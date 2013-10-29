@@ -82,25 +82,6 @@ class LivePreviewStartCommand(sublime_plugin.TextCommand, LivePreviewAPI):
         url = self.path_to_url(self.view.file_name())
         livePreviewBrowserThread = LivePreviewBrowserThread(host, port, url)
         livePreviewBrowserThread.start()
-        
-class LivePreviewStartServerCommand(sublime_plugin.ApplicationCommand, LivePreviewAPI):
-    """Starts the web server and the web socket server"""
-    def run(self):
-        web_thread = LivePreviewWebThread.get_thread()
-        if web_thread is None:
-            host, port = "localhost", 9090
-            httpd = http.server.HTTPServer((host, port), LivePreviewHTTPRequestHandler)
-            livePreviewWebThread = LivePreviewWebThread(httpd)
-            livePreviewWebThread.start()
-
-class LivePreviewStopServerCommand(sublime_plugin.ApplicationCommand, LivePreviewAPI):
-    """Stops the web server and the web socket server"""
-    def run(self):
-        web_thread = LivePreviewWebThread.get_thread()
-        if web_thread is not None:
-            web_thread.stop()
-            web_thread.join()
-            print('stopped server')
 
 class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler, LivePreviewAPI):
     """Manages http requests"""
@@ -135,6 +116,47 @@ class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler, LivePrev
         if file_name not in LivePreviewEvents.files:
             LivePreviewEvents.files.append(file_name)
 
+
+class LivePreviewWSServer(WebSocketServer, LivePreviewAPI):
+    """Web socket to communicate with the browser plugin"""
+    def new_client(self):
+        rlist = [self.client]
+        while True:
+            wlist = []
+            # if there is something to send, add self.client to the wlist
+            ins, outs, excepts = select.select(rlist, wlist, [], 1)
+
+            if excepts:
+                raise Exception("Socket Exception")
+
+            if self.client in ins:
+                pass
+
+            if self.client in outs:
+                pass
+
+
+class LivePreviewBrowserThread(LivePreviewNamedThread):
+    """Manages the browser"""
+    def __init__(self, host, port, url):
+        super(LivePreviewBrowserThread, self).__init__()
+        self.host = host
+        self.port = port
+        self.url = url
+        self.chrome = None
+        try:
+            self.chrome = webbrowser.get('chrome')
+        except webbrowser.Error:
+            try:
+                self.chrome = webbrowser.get('google-chrome')
+            except webbrowser.Error:
+                pass
+    def run(self):
+        if None != self.chrome:
+            self.chrome.open("http://{host}:{port}/{url}".format(host=self.host, port=self.port, url=self.url))
+        else:
+            sublime.error_message('You must have chrome/chromium installed for this plugin to work.')
+
 class LivePreviewNamedThread(threading.Thread, LivePreviewAPI):
     """Starts a server with a given name"""
 
@@ -165,50 +187,42 @@ class LivePreviewWebThread(LivePreviewNamedThread):
             self.httpd.shutdown()
             self.httpd.server_close()
 
-class LivePreviewBrowserThread(LivePreviewNamedThread):
-    """Manages the browser"""
-    def __init__(self, host, port, url):
-        super(LivePreviewBrowserThread, self).__init__()
-        self.host = host
-        self.port = port
-        self.url = url
-        self.chrome = None
-        try:
-            self.chrome = webbrowser.get('chrome')
-        except webbrowser.Error:
-            try:
-                self.chrome = webbrowser.get('google-chrome')
-            except webbrowser.Error:
-                pass
-    def run(self):
-        if None != self.chrome:
-            self.chrome.open("http://{host}:{port}/{url}".format(host=self.host, port=self.port, url=self.url))
-        else:
-            sublime.error_message('You must have chrome/chromium installed for this plugin to work.')
-        
-class LivePreviewWebSocket(WebSocketServer, LivePreviewAPI):
-    """Web socket to communicate with the browser plugin"""
-    def new_client(self):
-        rlist = [self.client]
-        while True:
-            wlist = []
-            # if there is something to send, add self.client to the wlist
-            ins, outs, excepts = select.select(rlist, wlist, [], 1)
-
-            if excepts:
-                raise Exception("Socket Exception")
-
-            if self.client in ins:
-                pass
-
-            if self.client in outs:
-                pass
-
 class LivePreviewWSServerThread(LivePreviewNamedThread):
     """Manages the web socket"""
     def __init__(self, ws_server):
-        super(LivePreviewWebSocketThread, self).__init__()
+        super(LivePreviewWSServerThread, self).__init__()
         self.ws_server = ws_server
         
     def run(self):
         self.ws_server.start_server()
+
+class LivePreviewStartServerCommand(sublime_plugin.ApplicationCommand, LivePreviewAPI):
+    """Starts the web server and the web socket server"""
+    def run(self):
+        web_thread = LivePreviewWebThread.get_thread()
+        if web_thread is None:
+            host, port = "localhost", 9090
+            httpd = http.server.HTTPServer((host, port), LivePreviewHTTPRequestHandler)
+            livePreviewWebThread = LivePreviewWebThread(httpd)
+            livePreviewWebThread.start()
+        ws_thread = LivePreviewWSServerThread.get_thread()
+        if ws_thread is None:
+            opts = {'listen_host': 'localhost', 'listen_port': '9091'}
+            wssd = LivePreviewWSServer(listen_host='localhost', listen_port='9091', daemon=True)
+            livePreviewWSServerThread = LivePreviewWSServerThread(wssd)
+            livePreviewWSServerThread.start()
+
+class LivePreviewStopServerCommand(sublime_plugin.ApplicationCommand, LivePreviewAPI):
+    """Stops the web server and the web socket server"""
+    def run(self):
+        web_thread = LivePreviewWebThread.get_thread()
+        if web_thread is not None:
+            web_thread.stop()
+            web_thread.join()
+            print('stopped web server')
+        ws_thread = LivePreviewWSServerThread.get_thread()
+        if ws_thread is not None:
+            ws_thread.stop()
+            ws_thread.join()
+            print('stopped ws server')
+        
