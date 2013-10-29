@@ -2,9 +2,18 @@ import sublime, sublime_plugin
 import webbrowser
 import http.server
 import threading
-import os
 import select
-from .websocket import WebSocketServer
+import os
+from wsgiref.simple_server import make_server
+
+# works
+from .ws4py import *
+# doesn't work
+from .ws4py.websocket import EchoWebSocket
+# from .ws4py.server.wsgirefserver import WSGIServer, WebSocketWSGIRequestHandler
+# from .ws4py.server.wsgiutils import WebSocketWSGIApplication
+
+
 
 class LivePreviewAPI(object):
     """Manages settings and shared API"""
@@ -117,24 +126,39 @@ class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler, LivePrev
             LivePreviewEvents.files.append(file_name)
 
 
-class LivePreviewWSServer(WebSocketServer, LivePreviewAPI):
-    """Web socket to communicate with the browser plugin"""
-    def new_client(self):
-        rlist = [self.client]
-        while True:
-            wlist = []
-            # if there is something to send, add self.client to the wlist
-            ins, outs, excepts = select.select(rlist, wlist, [], 1)
+# class LivePreviewWSServer(WebSocketServer, LivePreviewAPI):
+#     """Web socket to communicate with the browser plugin"""
+#     def new_client(self):
+#         rlist = [self.client]
+#         while True:
+#             wlist = []
+#             # if there is something to send, add self.client to the wlist
+#             ins, outs, excepts = select.select(rlist, wlist, [], 1)
 
-            if excepts:
-                raise Exception("Socket Exception")
+#             if excepts:
+#                 raise Exception("Socket Exception")
 
-            if self.client in ins:
-                pass
+#             if self.client in ins:
+#                 pass
 
-            if self.client in outs:
-                pass
+#             if self.client in outs:
+#                 pass
 
+
+class LivePreviewNamedThread(threading.Thread, LivePreviewAPI):
+    """Starts a server with a given name"""
+
+    def __init__(self):
+        super(LivePreviewNamedThread, self).__init__()
+        self.name = self.__class__.__name__
+
+    @classmethod
+    def get_thread(cls):
+        threads = threading.enumerate()
+        for thread in threads:
+            if thread.name is cls.__name__ and thread.is_alive():
+                return thread
+        return None
 
 class LivePreviewBrowserThread(LivePreviewNamedThread):
     """Manages the browser"""
@@ -157,21 +181,6 @@ class LivePreviewBrowserThread(LivePreviewNamedThread):
         else:
             sublime.error_message('You must have chrome/chromium installed for this plugin to work.')
 
-class LivePreviewNamedThread(threading.Thread, LivePreviewAPI):
-    """Starts a server with a given name"""
-
-    def __init__(self):
-        super(LivePreviewNamedThread, self).__init__()
-        self.name = self.__class__.__name__
-
-    @classmethod
-    def get_thread(cls):
-        threads = threading.enumerate()
-        for thread in threads:
-            if thread.name is cls.__name__ and thread.is_alive():
-                return thread
-        return None
-
 class LivePreviewWebThread(LivePreviewNamedThread):
     """Manages a thread which runs the web server"""
     def __init__(self, httpd):
@@ -192,9 +201,13 @@ class LivePreviewWSServerThread(LivePreviewNamedThread):
     def __init__(self, ws_server):
         super(LivePreviewWSServerThread, self).__init__()
         self.ws_server = ws_server
+        server = make_server('', 9000, server_class=WSGIServer,
+                     handler_class=WebSocketWSGIRequestHandler,
+                     app=WebSocketWSGIApplication(handler_cls=EchoWebSocket))
+        server.initialize_websockets_manager()
         
     def run(self):
-        self.ws_server.start_server()
+        server.serve_forever()
 
 class LivePreviewStartServerCommand(sublime_plugin.ApplicationCommand, LivePreviewAPI):
     """Starts the web server and the web socket server"""
