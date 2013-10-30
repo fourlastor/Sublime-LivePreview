@@ -2,6 +2,9 @@ import sublime, sublime_plugin
 
 class LivePreviewAPI(object):
     """Manages settings and shared API"""
+
+    clients = []
+
     def get_setting(self):
         pass
     def set_setting(self):

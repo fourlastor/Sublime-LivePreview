@@ -43,7 +43,11 @@ class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler, LivePrev
 
 class LivePreviewWebSocketHandler(WebSocket, LivePreviewAPI):
     """Class to manage communication with browser"""
-    pass
+    def opened(self):
+        LivePreviewAPI.clients.append(self)
+
+    def closed(self, code, reason=None):
+        LivePreviewAPI.clients.remove(self)
         
 class LivePreviewNamedThread(threading.Thread, LivePreviewAPI):
     """Starts a server with a given name"""
