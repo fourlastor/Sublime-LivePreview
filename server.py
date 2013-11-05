@@ -33,6 +33,7 @@ class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler, LivePrev
     def log_error(self,format,*args): pass
     def log_message(self,format,*args): pass
     def observe_file(self, file_name):
+        """Adds a file to the observation array so it fires the page reload on save."""
         file_name = file_name.__str__()
         window = sublime.active_window()
         view = window.find_open_file(file_name)
@@ -58,6 +59,7 @@ class LivePreviewNamedThread(threading.Thread, LivePreviewAPI):
 
     @classmethod
     def get_thread(cls):
+        """Gets a running instance of this thread"""
         threads = threading.enumerate()
         for thread in threads:
             if thread.name is cls.__name__ and thread.is_alive():
@@ -80,6 +82,7 @@ class LivePreviewBrowserThread(LivePreviewNamedThread):
             except webbrowser.Error:
                 pass
     def run(self):
+        """Opens the browser at a given page"""
         if None != self.chrome:
             self.chrome.open("http://{host}:{port}/{url}".format(host=self.host, port=self.port, url=self.url))
         else:
@@ -94,10 +97,12 @@ class LivePreviewWebThread(LivePreviewNamedThread):
         self.httpd = httpd
 
     def run(self):
+        """Starts the web server"""
         print('starting server...')
         self.httpd.serve_forever()
 
     def stop(self):
+        """Stops the web server"""
         if isinstance(self.httpd, http.server.HTTPServer):
             self.httpd.shutdown()
             self.httpd.server_close()
@@ -112,9 +117,11 @@ class LivePreviewWSServerThread(LivePreviewNamedThread):
         self.ws_server.initialize_websockets_manager()
         
     def run(self):
+        """Starts the web socket"""
         self.ws_server.serve_forever()
 
     def stop(self):
+        """Stops the web socket"""
         if isinstance(self.ws_server, http.server.HTTPServer):
             self.ws_server.shutdown()
             self.ws_server.server_close()

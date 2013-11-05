@@ -41,6 +41,7 @@ class LivePreviewAPI(object):
 
     @classmethod
     def path_to_url(cls, file_name):
+        """Transforms an absolute path in an url managed by the web server"""
         folders = cls.get_folders()
         for folder in folders:
             if file_name.startswith(folders[folder]):
@@ -48,6 +49,7 @@ class LivePreviewAPI(object):
 
     @classmethod
     def url_to_path(cls, url):
+        """Transforms an url managed by the web server in an absolute path"""
         folders = cls.get_folders()
         words = list(filter(None, url.split(os.sep)))
         if(words[0] in folders):

@@ -11,6 +11,7 @@ class LivePreviewEvents(sublime_plugin.EventListener, LivePreviewAPI):
     """Handles events"""
     files = []
     def on_post_save_async(self, view):
+        """Fired asyncrhonously every time a file is saved, if the file is being observed, fires the page reloading."""
         file_name = view.file_name()
         if file_name in self.__class__.files:
             print("would have reloaded")
