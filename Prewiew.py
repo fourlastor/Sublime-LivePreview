@@ -1,5 +1,4 @@
 import sublime, sublime_plugin
-import webbrowser
 import select
 import os
 
@@ -9,11 +8,10 @@ from .server import *
 
 class LivePreviewEvents(sublime_plugin.EventListener, LivePreviewAPI):
     """Handles events"""
-    files = []
     def on_post_save_async(self, view):
         """Fired asyncrhonously every time a file is saved, if the file is being observed, fires the page reloading."""
         file_name = view.file_name()
-        if file_name in self.__class__.files:
+        if file_name in LivePreviewAPI.observed_files:
             print("would have reloaded")
             # empy list to regenerate dependencies
             self.__class__.files = []

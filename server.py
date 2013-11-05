@@ -1,5 +1,8 @@
+import sublime, sublime_plugin
 import http.server
 import threading
+import mimetypes
+import webbrowser
 
 from .api import LivePreviewAPI
 
@@ -12,19 +15,36 @@ class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler, LivePrev
     """Manages http requests"""
     def do_HEAD(self):
         self.send_response(200)
-        self.send_header("Content-type", "text/html")
+        mime, encoding = mimetypes.guess_type(self.url_to_path(self.path))
+        self.send_header("Content-type", mime)
         self.end_headers()
     def do_GET(self):
         file_name = self.url_to_path(self.path)
-        print("{path} is {file_name}".format(path=self.path, file_name=file_name))
+
         if file_name is None:
             self.send_error(404, "File not found: {path}".format(path=self.path))
             return
         try:
-            self.observe_file(file_name)
-            f = open(file_name)
             self.do_HEAD()
-            self.wfile.write(f.read().encode())
+
+            mime, encoding = mimetypes.guess_type(self.url_to_path(self.path))
+            if 'image' in mime:
+                file_is_binary = True
+            else:
+                file_is_binary = False
+
+            mode = 'r'
+            if file_is_binary:
+                mode += 'b'
+
+            f = open(file_name, mode)
+
+            if file_is_binary:
+                self.wfile.write(f.read())
+            else:
+                self.observe_file(file_name)
+                self.wfile.write(f.read().encode())
+
             f.close()
             return
         except IOError:
@@ -39,8 +59,8 @@ class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler, LivePrev
         view = window.find_open_file(file_name)
         if view is None:
             window.open_file(file_name)
-        if file_name not in LivePreviewEvents.files:
-            LivePreviewEvents.files.append(file_name)
+        if file_name not in LivePreviewAPI.observed_files:
+            LivePreviewAPI.observed_files.append(file_name)
 
 class LivePreviewWebSocketHandler(WebSocket, LivePreviewAPI):
     """Class to manage communication with browser"""

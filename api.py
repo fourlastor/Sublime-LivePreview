@@ -1,8 +1,10 @@
 import sublime, sublime_plugin
+import os
 
 class LivePreviewAPI(object):
     """Manages settings and shared API"""
 
+    observed_files = []
     clients = []
 
     def get_setting(self):
