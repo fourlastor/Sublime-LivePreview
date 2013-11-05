@@ -52,15 +52,6 @@ class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler, LivePrev
     def log_request(self,code='-',size='-'): pass
     def log_error(self,format,*args): pass
     def log_message(self,format,*args): pass
-    def observe_file(self, file_name):
-        """Adds a file to the observation array so it fires the page reload on save."""
-        file_name = file_name.__str__()
-        window = sublime.active_window()
-        view = window.find_open_file(file_name)
-        if view is None:
-            window.open_file(file_name)
-        if file_name not in LivePreviewAPI.observed_files:
-            LivePreviewAPI.observed_files.append(file_name)
 
 class LivePreviewWebSocketHandler(WebSocket, LivePreviewAPI):
     """Class to manage communication with browser"""

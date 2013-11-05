@@ -7,14 +7,12 @@ class LivePreviewAPI(object):
     observed_files = []
     clients = []
 
-    def get_setting(self, key):
-        settings = {'web_host': 'localhost', 'web_port': 9090, 'ws_host': 'localhost', 'ws_port': 9091, 'open_new_files': True}
+    @classmethod
+    def get_setting(cls, key):
+        settings = {'web_host': 'localhost', 'web_port': 9090, 'ws_host': 'localhost', 'ws_port': 9091, 'open_observed_files': True}
         if key in settings.keys():
             return settings[key]
         return None
-
-    def set_setting(self):
-        pass
 
     @classmethod
     def get_folders(cls):
@@ -44,6 +42,18 @@ class LivePreviewAPI(object):
                 else:
                     dic[key] = f
         return dic
+
+    @classmethod
+    def observe_file(cls, file_name):
+        """Adds a file to the observation array so it fires the page reload on save."""
+        file_name = file_name.__str__()
+        if cls.get_setting('open_observed_files'):
+            window = sublime.active_window()
+            view = window.find_open_file(file_name)
+            if view is None:
+                window.open_file(file_name)
+        if file_name not in LivePreviewAPI.observed_files:
+            LivePreviewAPI.observed_files.append(file_name)
 
     @classmethod
     def path_to_url(cls, file_name):
