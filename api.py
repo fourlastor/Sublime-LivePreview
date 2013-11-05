@@ -9,7 +9,7 @@ class LivePreviewAPI(object):
 
     @classmethod
     def get_setting(cls, key):
-        settings = {'web_host': 'localhost', 'web_port': 9090, 'ws_host': 'localhost', 'ws_port': 9091, 'open_observed_files': True}
+        settings = {'web_host': 'localhost', 'web_port': 9090, 'ws_host': 'localhost', 'ws_port': 9091, 'open_observed_files': False}
         if key in settings.keys():
             return settings[key]
         return None
@@ -55,6 +55,8 @@ class LivePreviewAPI(object):
         if file_name not in LivePreviewAPI.observed_files:
             LivePreviewAPI.observed_files.append(file_name)
 
+        print("Observed files are {observed_files}".format(observed_files=LivePreviewAPI.observed_files))
+
     @classmethod
     def path_to_url(cls, file_name):
         """Transforms an absolute path in an url managed by the web server"""
@@ -75,3 +77,13 @@ class LivePreviewAPI(object):
             return path
         else:
             return None
+
+    @classmethod
+    def reload_page(cls, file_name):
+        """Sends a reload command to the page, empties the observed_files list to regenerate dependencies"""
+        if file_name in LivePreviewAPI.observed_files:
+            # LivePreviewAPI.observed_files = []
+            for client in LivePreviewAPI.clients:
+                client.send_reload()
+
+        

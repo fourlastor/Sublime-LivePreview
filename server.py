@@ -42,7 +42,7 @@ class LivePreviewHTTPRequestHandler(http.server.BaseHTTPRequestHandler, LivePrev
             if file_is_binary:
                 self.wfile.write(f.read())
             else:
-                self.observe_file(file_name)
+                LivePreviewAPI.observe_file(file_name)
                 self.wfile.write(f.read().encode())
 
             f.close()
@@ -57,10 +57,14 @@ class LivePreviewWebSocketHandler(WebSocket, LivePreviewAPI):
     """Class to manage communication with browser"""
     def opened(self):
         LivePreviewAPI.clients.append(self)
+        print("Opened - Appending")
 
     def closed(self, code, reason=None):
         LivePreviewAPI.clients.remove(self)
-        
+
+    def send_reload(self):
+        pass
+                
 class LivePreviewNamedThread(threading.Thread, LivePreviewAPI):
     """Starts a server with a given name"""
 
