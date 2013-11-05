@@ -55,8 +55,6 @@ class LivePreviewAPI(object):
         if file_name not in LivePreviewAPI.observed_files:
             LivePreviewAPI.observed_files.append(file_name)
 
-        print("Observed files are {observed_files}".format(observed_files=LivePreviewAPI.observed_files))
-
     @classmethod
     def path_to_url(cls, file_name):
         """Transforms an absolute path in an url managed by the web server"""
