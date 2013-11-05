@@ -7,8 +7,12 @@ class LivePreviewAPI(object):
     observed_files = []
     clients = []
 
-    def get_setting(self):
-        pass
+    def get_setting(self, key):
+        settings = {'web_host': 'localhost', 'web_port': 9090, 'ws_host': 'localhost', 'ws_port': 9091, 'open_new_files': True}
+        if key in settings.keys():
+            return settings[key]
+        return None
+
     def set_setting(self):
         pass
 

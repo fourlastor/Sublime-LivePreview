@@ -22,9 +22,8 @@ class LivePreviewStartCommand(sublime_plugin.TextCommand, LivePreviewAPI):
     """Launches the browser for the current file"""
     def run(self, edit):
         sublime.run_command('live_preview_start_server')
-        host, port = "localhost", 9090
         url = self.path_to_url(self.view.file_name())
-        livePreviewBrowserThread = LivePreviewBrowserThread(host, port, url)
+        livePreviewBrowserThread = LivePreviewBrowserThread(url)
         livePreviewBrowserThread.start()
 
 class LivePreviewStartServerCommand(sublime_plugin.ApplicationCommand, LivePreviewAPI):
@@ -46,10 +45,8 @@ class LivePreviewStopServerCommand(sublime_plugin.ApplicationCommand, LivePrevie
         if web_thread is not None:
             web_thread.stop()
             web_thread.join()
-            print('stopped web server')
         ws_thread = LivePreviewWSServerThread.get_thread()
         if ws_thread is not None:
             ws_thread.stop()
             ws_thread.join()
-            print('stopped ws server')
         

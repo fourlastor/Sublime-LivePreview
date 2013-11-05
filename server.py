@@ -88,10 +88,8 @@ class LivePreviewNamedThread(threading.Thread, LivePreviewAPI):
 
 class LivePreviewBrowserThread(LivePreviewNamedThread):
     """Manages the browser"""
-    def __init__(self, host, port, url):
+    def __init__(self, url):
         super().__init__()
-        self.host = host
-        self.port = port
         self.url = url
         self.chrome = None
         try:
@@ -104,7 +102,7 @@ class LivePreviewBrowserThread(LivePreviewNamedThread):
     def run(self):
         """Opens the browser at a given page"""
         if None != self.chrome:
-            self.chrome.open("http://{host}:{port}/{url}".format(host=self.host, port=self.port, url=self.url))
+            self.chrome.open("http://{host}:{port}/{url}".format(host=self.get_setting('web_host'), port=self.get_setting('web_port'), url=self.url))
         else:
             sublime.error_message('You must have chrome/chromium installed for this plugin to work.')
 
@@ -112,13 +110,11 @@ class LivePreviewWebThread(LivePreviewNamedThread):
     """Manages a thread which runs the web server"""
     def __init__(self):
         super().__init__()
-        host, port = "localhost", 9090
-        httpd = http.server.HTTPServer((host, port), LivePreviewHTTPRequestHandler)
+        httpd = http.server.HTTPServer((self.get_setting('web_host'), self.get_setting('web_port')), LivePreviewHTTPRequestHandler)
         self.httpd = httpd
 
     def run(self):
         """Starts the web server"""
-        print('starting server...')
         self.httpd.serve_forever()
 
     def stop(self):
@@ -131,7 +127,7 @@ class LivePreviewWSServerThread(LivePreviewNamedThread):
     """Manages the web socket"""
     def __init__(self):
         super().__init__()
-        self.ws_server = make_server('', 9091, server_class=WSGIServer,
+        self.ws_server = make_server(self.get_setting('ws_host'), self.get_setting('ws_port'), server_class=WSGIServer,
                      handler_class=WebSocketWSGIRequestHandler,
                      app=WebSocketWSGIApplication(handler_cls=LivePreviewWebSocketHandler))
         self.ws_server.initialize_websockets_manager()
