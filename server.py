@@ -3,6 +3,7 @@ import http.server
 import threading
 import mimetypes
 import webbrowser
+import json
 
 from .api import LivePreviewAPI
 
@@ -62,7 +63,8 @@ class LivePreviewWebSocketHandler(WebSocket, LivePreviewAPI):
         LivePreviewAPI.clients.remove(self)
 
     def send_reload(self):
-        pass
+        message = json.dumps({'command': 'reload'})
+        self.send(message)
 
 class LivePreviewNamedThread(threading.Thread, LivePreviewAPI):
     """Starts a server with a given name"""
