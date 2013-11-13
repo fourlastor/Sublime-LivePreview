@@ -94,7 +94,13 @@ class LivePreviewBrowserThread(LivePreviewNamedThread):
             try:
                 self.chrome = webbrowser.get('google-chrome')
             except webbrowser.Error:
-                pass
+                try:
+                    self.chrome = webbrowser.get('chromium')
+                except webbrowser.Error:
+                    try:
+                        self.chrome = webbrowser.get('chromium-browser')
+                    except webbrowser.Error:
+                        pass
     def run(self):
         """Opens the browser at a given page"""
         if None != self.chrome:
